@@ -104,4 +104,127 @@ for i in range (160):
                     """, (propietario_aleatorio,vehiculos_aleatorios,fecha_ingreso,fecha_salida,valor))
     conexion.commit()
 
+#HACIENDO CONSULTAS DE DATOS
+
+#OBTENER UNICAMENTE LOS NOMBRE Y CORREOS DE TODOS  LOS PROPIETARIOS  REGISTRADOS
+cursor.execute("SELECT NOMBRE, CORREO FROM propietario; ")
+resultado=cursor.fetchall()
+print(f" NOMBRE Y CORREO DE LOS PROPIETARIOS:")
+for r in resultado:
+    print(r)
+
+#MOSTRAR TODA LA INFORMACION DE LOS VEHICULOS QUE SEAN DE MARCA TOYOTA 
+cursor.execute(" SELECT ID_VEHICULO,PLACA,COLOR FROM vehiculos WHERE MARCA='TOYOTA';")
+resultado=cursor.fetchall()
+print(f" VEHICULOS CUYA MARCA ES TOYOTA:")
+for r in resultado:
+    print(r)
+
+#MOSTRAR TODOS LOS INGRESOS DEL PARQUEADERO DONDE EL VALOR PAGADO SEA MAYOR A 8000
+cursor.execute("SELECT * FROM registros_parqueadero WHERE VALOR_PAGADO>8000; ")
+resultado=cursor.fetchall()
+print(f" REGISTROS DEL PARQUEADERO DONDE SE PAGO MAS DE  8000 :")
+for r in resultado:
+    print(r)
+
+#ENCONTRAR A TODOS LOS PROPIETARIOS CUYO CORREO ELECTRONICO TERMINA EN @GMAIL.COM
+cursor.execute(" SELECT NOMBRE FROM propietario WHERE CORREO  LIKE '%@gmail.com'")
+resultado=cursor.fetchall()
+print(f"PROPIETARIOS QUE TIENEN UN CORREO ELECTRONICO GMAIL:")
+for r in resultado:
+    print(r)
+
+#LISTAR TODAS LAS PLACAS Y MARCAS DE LOS VEHICULOS QUE SEAN DE COLOR ROJO O BLANCO
+cursor.execute("SELECT PLACA , MARCA FROM vehiculos WHERE COLOR = 'ROJO' OR COLOR='BLANCO'")
+resultado=cursor.fetchall()
+print(f" PLACA Y MARCA DE LOS VEHICULOS CON COLOR ROJO O BLANCO:")
+for r in resultado:
+    print(r)
+
+#OBTENER EL ID DE REGISTRO , PLACA , MARCA DEL VEHICULO Y NOMBRE DEL PROPIETARIO PARA CADA ENTRADA AL PARQUEADERO
+cursor.execute("""
+                SELECT R.ID_REGISTRO,V.PLACA,V.MARCA,P.NOMBRE 
+                FROM registros_parqueadero AS R
+                JOIN propietario  AS P ON R.ID_PROPIETARIO=P.ID_PROPIETARIO
+                JOIN vehiculos AS V ON R.ID_VEHICULO=V.ID_VEHICULO 
+                """)
+resultado=cursor.fetchall()
+print(f"VEHICULO Y SU DUEÑO EN EL PARQUEADERO:")
+for r in resultado:
+    print(r)
+
+#ELEGIR A UN PROPIETARIO  Y MOSTRAR SU HISTORIAL EN EL PARQUEADERO , INDICANDO LA FECHA DE INGRESO , SALIDA Y EL VALOR PAGADO
+cursor.execute("""
+                SELECT FECHA_INGRESO,FECHA_SALIDA FROM registros_parqueadero 
+                WHERE ID_PROPIETARIO = 5 
+               
+                """)
+resultado=cursor.fetchall()
+print(f"HISTORIAL EN EL PARQUEADERO DEL PROPIETARIO 5:")
+for r in resultado:
+    print(r)
+
+#MOSTRAR LA PLACA, COLOR Y VALOR PAGADO DE TODOS LOS REGISTROS DE INGRESO
+cursor.execute("""
+                SELECT V.PLACA,V.COLOR,R.VALOR_PAGADO 
+                FROM registros_parqueadero AS R
+                JOIN vehiculos AS V ON R.ID_VEHICULO=V.ID_VEHICULO
+                LIMIT 30
+                """)
+resultado=cursor.fetchall()
+print(f" PLACA, COLOR Y VALOR PAGADO DE TODOS LOS REGISTROS EN EL MES:")
+for r in resultado:
+    print(r)
+
+#CALCULAR EL DINERO TOTAL GANADO EN EL PARQUEADERO
+cursor.execute("SELECT SUM(VALOR_PAGADO) AS DINERO_RECAUDADO FROM registros_parqueadero")
+resultado=cursor.fetchall()
+print(f" GANANCIA TOTAL : ")
+for r in resultado:
+    print(r)
+
+#CUANTOS VEHICULOS REGISTRADOS HAY POR MARCA , SE DEBE MOSTRAR LA MARCA Y CANTIDAD
+cursor.execute("""
+                SELECT MARCA , COUNT(ID_VEHICULO)
+                FROM vehiculos      
+                GROUP BY MARCA 
+                """)
+resultado=cursor.fetchall()
+print(f" NUMERO DE VEHICULOS REGISTRADOS POR CADA MARCA:")
+for r in resultado:
+    print(r)
+
+#VALOR PROMEDIO RECAUDADO POR CADA REGISTRO DEL PARQUEADERO
+cursor.execute(" SELECT AVG(VALOR_PAGADO) AS PROMEDIO_RECAUDADO FROM registros_parqueadero")
+resultado=cursor.fetchall()
+print(f"INGRESO PROMEDIO:")
+for r in resultado:
+    print(r)
+
+#MOSTRAR EL NOMBRE DEL PROPIETARIO JUNTO CON LA CANTIDAD TOTAL DE VECES QUE HA USADO EL PARQUEADERO Y SE DEBE ORDENAR DE MAYOR A MENOR
+cursor.execute("""
+               SELECT P.NOMBRE , COUNT(R.ID_PROPIETARIO)
+               FROM registros_parqueadero AS R
+               JOIN propietario AS P ON R.ID_PROPIETARIO=P.ID_PROPIETARIO
+               GROUP BY P.NOMBRE 
+               ORDER BY NOMBRE DESC
+               """)
+resultado=cursor.fetchall()
+print(f"PROPIETARIO Y VECES QUE HAN INGRESADO AL PARQUEADERO:")
+for r in resultado:
+    print(r)
+
+#MOSTRAR EL NOMBRE DEL PROPIETARIO Y LA SUMA TOTAL DE DINERO QUE HA PAGADO EN SUS INGRESOS AL PARQUEADERO
+cursor.execute("""
+                SELECT P.NOMBRE , SUM(R.VALOR_PAGADO)
+                FROM registros_parqueadero AS R
+                JOIN propietario AS P ON R.ID_PROPIETARIO=P.ID_PROPIETARIO
+                GROUP BY P.NOMBRE
+                """)
+resultado= cursor.fetchall()
+print(f"PROPIETARIO Y SU DINERO GASTADO EN EL PARQUEADERO:")
+for r in resultado:
+    print(r)
+
+
 conexion.close()
